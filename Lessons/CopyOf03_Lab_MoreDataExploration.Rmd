@@ -93,25 +93,37 @@ Question: In the R chunk below, write "dataframe1$". Press `tab` after you type 
 Find a ten-day forecast of temperatures (Fahrenheit) for Durham, North Carolina. Create two vectors, one representing the high temperature on each of the ten days and one representing the low.
 
 ```{r}
-
+hightemperatures_f<-c(42,45,48,35,43,52,51,60,66,59)
+lowtemperatures_f<-c(20,27,27,15,26,25,33,49,48,27)
 ```
 
 Now, create two additional vectors that include the ten-day forecast for the high and low temperatures in Celsius. Use a function to create the two new vectors from your existing ones in Fahrenheit.
 
 ```{r}
+hightemperatures_c<-c(6,7,9,1,6,11,10,15,19,15)
+lowtemperatures_c<-c(-7,-3,-3,-10,-4,-4,1,9,9,-3)
 
+convertftoc <- function(x){
+  mix <- (x-32)*(5/9)
+  return(mix)
+}
+
+convertftoc(hightemperatures_f)
+convertftoc(lowtemperatures_f)
 ```
 
 Combine your four vectors into a data frame and add informative column names.
 
 ```{r}
-
+durhamforecast_ten <- data.frame(hightemperatures_f,lowtemperatures_f,hightemperatures_c,lowtemperatures_c)
+names(durhamforecast_ten) <- c("High Temperatures Fahrenheit","Low Temperatures Fahrenheit","High Temperatures Celsius", "Low Temperatures Celsius"); View(durhamforecast_ten)
 ```
 
 Use the common functions `summary` and `sd` to obtain basic data summaries of the ten-day forecast. How would you call these functions differently for the entire data frame vs. a single column? Attempt to demonstrate both options below.
 
 ```{r}
-
+summary(durhamforecast_ten)
+sd(durhamforecast_ten$`High Temperatures Fahrenheit`)
 ```
 
 ### Date objects
@@ -134,9 +146,9 @@ Remember formatting of dates in R:
 # (code must be uncommented)
 today <- Sys.Date()
 format(today, format = "%B")
-#format(today, format = "")
-#format(today, format = "")
-#format(today, format = "")
+#format(today, format = "$y")
+format(today, format = "%m-%d-%Y")
+format(today, format = "%d-%m-%Y")
 
 ```
 
@@ -148,7 +160,7 @@ Install and load the package lubridate into your R session. Lubridate offers fas
 More info on lubridate [here][https://cran.r-project.org/web/packages/lubridate/lubridate.pdf].
 
 ```{r DateExercise1}
-#install.packages("lubridate")
+install.packages("lubridate")
 library(lubridate)
 
 #Ex1
@@ -187,11 +199,11 @@ fixed_date_obj_past
 #Fix for century issue
 str_past <- "55-feb-3"
 #Alternative 1
-date_obj_past <- fast_strptime(str_past,"%y-%b-%d",cutoff_2000=21L)
+date_obj_past <- fast_strptime(str_past,"%y-%b-%d",cutoff_2000=22L)
 date_obj_past
 
 #Alternative 2
-date_obj_past2 <- parse_date_time2(str_past,"ymd",cutoff_2000=21L)
+date_obj_past2 <- parse_date_time2(str_past,"ymd",cutoff_2000=22L)
 date_obj_past2
 
 #Functions ymd(), mdy(), ydm() do not take argument cutoff_2000
