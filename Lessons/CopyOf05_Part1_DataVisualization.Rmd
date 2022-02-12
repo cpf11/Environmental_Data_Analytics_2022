@@ -76,7 +76,7 @@ Here are some commonly used aesthetic types that can be manipulated in ggplot:
 
 ### Plotting continuous variables over time: Scatterplot and Line Plot
 
-```{r, fig.height = 3, fig.width = 4, warning = FALSE}
+```{r fig.height=3, fig.width=4, warning=FALSE}
 # Scatterplot
 ggplot(EPAair, aes(x = Date, y = Ozone)) + 
   geom_point()
@@ -114,7 +114,7 @@ PMplot.faceted2 <-
   facet_grid(Site.Name ~ Year) 
 print(PMplot.faceted2)
 
-# Plot true time series with geom_line
+# Plot true time series with geom_line #connect points with a line #time series plot
 PMplot.line <- 
   ggplot(subset(EPAair, Site.Name == "Leggett"), 
          aes(x = Date, y = PM2.5)) +
