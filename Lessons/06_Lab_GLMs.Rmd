@@ -151,7 +151,35 @@ Create three plots, each with appropriately formatted axes and legends. Choose a
 
 ```{r}
 #Exercise 2:
+#1
+EPA.ozone.year <- ggplot(EPAair, aes(y = Ozone/Year)) +
+  geom_density()
 
+EPAdensity<-
+  ggplot(EPAair, aes(x=Ozone, fill=as.factor(Year))) +
+  geom_density(alpha=0.5) +
+  scale_fill_manual(values=c("darkgreen", "darkblue")) +
+  labs(x="Ozone AQI value", y = "Density", fill = "")
+
+print(EPAdensity)
+
+#2
+EPAboxplot <- 
+  ggplot(EPAair, aes(x = as.factor(Year), y = Ozone)) +
+  geom_boxplot() +
+stat_summary(geom = "text", fun = max, vjust = -1, size = 4,
+               label = c("b", "a")) +
+  labs(x = "", y = "Ozone AQI value") +
+  ylim(0,150)
+
+print(EPAboxplot)
+
+#3
+EPAviolin<-
+  ggplot(EPAair, aes(x = as.factor(Year), y = Ozone)) +
+  geom_violin(draw_quantiles = 0.5) +
+  stat_summary(geom = "text", fun = max, vjust = -1, size = 4)
+ylim(0,150)
 
 ```
 
