@@ -63,13 +63,23 @@ See: <https://rmarkdown.rstudio.com> and class recording.
 
 ## WHY R MARKDOWN?
 
-<Fill in our discussion below with bullet points. Use italics and bold for emphasis (hint: use the cheat sheets or `Help` →`Markdown Quick Reference` to figure out how to make bold and italic text).> 
+<Fill in our discussion below with bullet points. Use italics and bold for emphasis (hint: use the cheat sheets or `Help` →`Markdown Quick Reference` to figure out how to make bold and italic text).
 
+- Allows you to combine R chunks and text and format them nicely into a ***PDF, HTML or Word doc***.
+- Facilitates ***groupwork***
 
 ## TEXT EDITING CHALLENGE
 
 Create a table below that details the example datasets we have been using in class. The first column should contain the names of the datasets and the second column should include some relevant information about the datasets. (Hint: use the cheat sheets to figure out how to make a table in Rmd)
 
+Dataset Name | Relevant Information
+-------------| --------------
+EPAair       | Air quality monitoring of PM2.5 and ozone in North Carolina in 2017 and 2018
+Litter       | Litter monitoring at Niwot Ridge Long-Term Ecological Research (LTER) station from 2016-2019. 
+Nutrients    | Data from studies on several lakes in the North Temperate Lakes District in Wisconsin, USA
+Flow Data    | Streamflow data from the USGS streamflow gage site 02085000 (Eno River at Hillsborough, NC)
+NC County    | Shapefile contains county level social vulnerability data for North Carolina
+ECOTOX       | Data from studies on several neonicotinoids and their effects insects
 
 ## R CHUNK EDITING CHALLENGE
 
@@ -77,14 +87,46 @@ Create a table below that details the example datasets we have been using in cla
 
 Create an R chunk below that installs the package `knitr`. Instead of commenting out the code, customize the chunk options such that the code is not evaluated (i.e., not run).
 
+```{r eval = FALSE}
+install.packages("knitr")
+```
 
 ### Setup
 
 Create an R chunk below called "setup" that checks your working directory, loads the packages `tidyverse`, `lubridate`, and `knitr`, and sets a ggplot theme. Remember that you need to disable R throwing a message, which contains a check mark that cannot be knitted.
 
+```{r setup, message=FALSE}
+#Check working directly
+getwd()
+
+#Load packages
+require(tidyverse)
+require(lubridate)
+require(knitr)
+
+#Set ggplot theme 
+mytheme <- theme_classic(base_size = 14) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
+theme_set(mytheme)
+```
+
+
 Load the NTL-LTER_Lake_Nutrients_Raw dataset, display the head of the dataset, and set the date column to a date format.
 
 Customize the chunk options such that the code is run but is not displayed in the final document.
+
+```{r echo=FALSE}
+#Load dataset
+Lake <- read.csv("./Data/Raw/NTL-LTER_Lake_Nutrients_Raw.csv", stringsAsFactors = TRUE)
+
+#Display head of dataset
+head(Lake)
+
+#Set date column to date format
+Lake$sampledate <- as.Date(Lake$sampledate, format = "%m/%d/%y")
+```
+
 
 
 ### Data Exploration, Wrangling, and Visualization
@@ -96,32 +138,57 @@ Create an R chunk below to create a processed dataset do the following operation
 -   Drop rows with missing data
 
 ```{r}
-Litter <- read.csv("../Data/Raw/NTL-LTER_Lake_Nutrients_Raw.csv", stringsAsFactors = TRUE)
+#Create processed dataset that meets conditions
+Lakenew <- Lake %>%
+    drop_na() %>%
+    select(lakename,year4,daynum,sampledate,depth,tn_ug,tp_ug,nh34,no23,po4) %>%
+    filter(depth==0) 
 ```
 
 
 Create a second R chunk to create a summary dataset with the mean, minimum, maximum, and standard deviation of total nitrogen concentrations for each lake. Create a second summary dataset that is identical except that it evaluates total phosphorus. Customize the chunk options such that the code is run but not displayed in the final document.
 
-```{r}
+```{r echo=FALSE}
+Lakesummary_nitrogen <- Lakenew %>%
+    group_by(lakename) %>%
+    summarise(mean.nitrogen=mean(no23), minimum.nitrogen=min(no23), maximum.nitrogen=max(no23), sd.nitrogen=sd(no23))
+```
 
+```{r echo=FALSE}
+Lakesummary_phosphorus <- Lakenew %>% 
+    group_by(lakename) %>%
+    summarise(mean.phosphorus=mean(po4), minimum.phosphorus=min(po4), maximum.phosphorus=max(po4), sd.phosphorus=sd(po4))
 ```
 
 
 Create a third R chunk that uses the function `kable` in the knitr package to display two tables: one for the summary dataframe for total N and one for the summary dataframe of total P. Use the `caption = " "` code within that function to title your tables. Customize the chunk options such that the final table is displayed but not the code used to generate the table.
 
-```{r}
+```{r echo=FALSE}
+knitr::kable(Lakesummary_nitrogen, caption = "Lake Surface Samples: Total Nitrogen")
 
+knitr::kable(Lakesummary_phosphorus, caption = "Lake Surface Samples: Total Phosphorus")
 ```
 
 
 Create a fourth and fifth R chunk that generates two plots (one in each chunk): one for total N over time with different colors for each lake, and one with the same setup but for total P. Decide which geom option will be appropriate for your purpose, and select a color palette that is visually pleasing and accessible. Customize the chunk options such that the final figures are displayed but not the code used to generate the figures. In addition, customize the chunk options such that the figures are aligned on the left side of the page. Lastly, add a fig.cap chunk option to add a caption (title) to your plot that will display underneath the figure.
 
-```{r}
+```{r Plot 1, fig.align='left', echo=FALSE,fig.cap="Nitrogen concentration over time"}
+#Plot total nitrogen over time 
+Lake_nitrogen_plot<-ggplot(Lakenew, aes(x = sampledate, y = no23, color = lakename)) +
+  geom_point() +
+  geom_smooth(method='lm', se=FALSE) +
+  labs(x="Time", y = "Total Nitrogen")
 
+print(Lake_nitrogen_plot)
 ```
 
-```{r}
+```{r Plot 2, fig.align='left', echo=FALSE, fig.cap="Phosphorus concentration over time"}
+Lake_phos_plot<-ggplot(Lakenew, aes(x = sampledate, y = po4, color = lakename)) +
+  geom_point() +
+  geom_smooth(method='lm', se=FALSE) +
+  labs(x="Time", y = "Total Phosphorus")
 
+print(Lake_phos_plot)
 ```
 
 
@@ -129,6 +196,11 @@ Create a fourth and fifth R chunk that generates two plots (one in each chunk): 
 
 Write a paragraph describing your findings from the R coding challenge above. This should be geared toward an educated audience but one that is not necessarily familiar with the dataset. Then insert a horizontal rule below the paragraph. Below the horizontal rule, write another paragraph describing the next steps you might take in analyzing this dataset. What questions might you be able to answer, and what analyses would you conduct to answer those questions?
 
+The coding challenge above dealt with a dataset looking at nutrient concentrations in several lakes between 1991-1999. Overall, it revealed that nitrogen and phosphorus concentrations have increased over time (1991-1999) for the majority of the sampled lakes. Some lakes did not show an increase over time. 
+
+- - -
+
+To further analyze this dataset, it would be of interest to determine whether seasonality plays a role in nutrient concentrations found in the sampled lakes. To do this, we would create a time series for the data and proceed to decompose the time series into several components to isolate seasonality. We could also investigate whether nutrient concentration is spatially correlated, by connecting this dataset to spatial data where the lakes are found, and then running a model on the variables of nutrient concentration (phosphorus or nitrogen) and latitude/longitude. 
 
 ## KNIT YOUR PDF
 When you have completed the above steps, try knitting your PDF to see if all of the formatting options you specified turned out as planned. This may take some troubleshooting.
